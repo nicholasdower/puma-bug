@@ -3,13 +3,11 @@ def run
   RubyVM::YJIT.enable
 
   read, wakeup = IO.pipe
-  Signal.trap("SIGCHLD") { wakeup.write("!") }
+  wakeup.write("!")
 
   begin
     while true
       begin
-        fork { exit }
-
         next if read.wait_readable
       rescue Interrupt
       end
