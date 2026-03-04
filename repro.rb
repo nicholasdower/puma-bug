@@ -2,18 +2,20 @@ def run
   fork_safe = ->(t) { t }
   RubyVM::YJIT.enable
 
-  read, wakeup = IO.pipe
-  wakeup.write("!")
+  i = 0
 
   begin
-    while true
+    while i < 100
+      i += 1
+      p i
       begin
-        next if read.wait_readable
+        next if i
       rescue Interrupt
       end
     end
   ensure
   end
+  p :ok
 end
 
 run
