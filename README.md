@@ -1,6 +1,6 @@
 ```shell
 bundle install
-bundle exec ruby -S puma config.ru -C config/puma.rb
+bundle exec ruby -S puma config.ru -C puma.rb
 ```
 
 ```

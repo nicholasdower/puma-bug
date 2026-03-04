@@ -1,4 +1,2 @@
-require_relative "config/environment"
-
-run Rails.application
-Rails.application.load_server
+RubyVM::YJIT.enable
+run ->(env) { [200, {"content-type" => "text/plain"}, ["ok"]] }
