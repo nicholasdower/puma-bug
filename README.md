@@ -1,3 +1,58 @@
+## Without Puma
+
+```ruby
+def run
+  fork_safe = ->(t) { t }
+  RubyVM::YJIT.enable
+
+  read, wakeup = IO.pipe
+  Signal.trap("SIGCHLD") { wakeup.write("!") }
+
+  begin
+    while true
+      begin
+        fork { exit }
+
+        next if read.wait_readable
+      rescue Interrupt
+      end
+    end
+  ensure
+  end
+end
+
+run
+```
+
+```shell
+ruby repro.rb
+```
+
+```shell
+repro.rb:13:in 'Object#run': undefined method 'wait_readable' for nil (NoMethodError)
+
+        next if read.wait_readable
+                    ^^^^^^^^^^^^^^
+	from repro.rb:21:in '<main>'
+```
+
+## With Puma
+
+`puma.rb`
+
+```ruby
+workers 4
+
+on_worker_boot { exit }
+```
+
+`config.ru`
+
+```ruby
+RubyVM::YJIT.enable
+run ->(env) { [200, {"content-type" => "text/plain"}, ["ok"]] }
+```
+
 ```shell
 bundle install
 bundle exec ruby -S puma config.ru -C puma.rb
